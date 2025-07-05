@@ -453,6 +453,7 @@
                 </p>
                 <!-- Email Form -->
                 <form id="contactForm" class="mb-8 space-y-4">
+                    <input type="text" id="name" name="name" required placeholder="Your Name" class="w-full px-4 py-2 rounded bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-400" />
                     <input type="email" id="email" name="email" required placeholder="Your Email" class="w-full px-4 py-2 rounded bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-400" />
                     <textarea id="message" name="message" required placeholder="Your Message" class="w-full px-4 py-2 rounded bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-400"></textarea>
                     <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded transition-colors">Send Email</button>
@@ -544,30 +545,39 @@
         }
 
         // Contact form submission
-        document.getElementById('contactForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const message = document.getElementById('message').value.trim();
-            const status = document.getElementById('formStatus');
-            // Email format validation
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(email)) {
-                status.textContent = "Please enter a valid email address.";
-                return;
-            }
-            status.textContent = "Sending...";
-            try {
-                await db.collection('emails').add({
-                    email,
-                    message,
-                    timestamp: new Date()
-                });
-                status.textContent = "Message sent! Thank you.";
-                this.reset();
-            } catch (err) {
-                status.textContent = "Failed to send. Please try again.";
-            }
-        });
+       document.getElementById('contactForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const message = document.getElementById('message').value.trim();
+        const status = document.getElementById('formStatus');
+
+        // Validation
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            status.textContent = "Please enter a valid email address.";
+            return;
+        }
+
+        if (!name || !message) {
+            status.textContent = "Please fill in all fields.";
+            return;
+        }
+
+        status.textContent = "Sending...";
+        try {
+            await db.collection('emails').add({
+                name,
+                email,
+                message,
+                timestamp: new Date()
+            });
+            status.textContent = "Message sent! Thank you.";
+            this.reset();
+        } catch (err) {
+            status.textContent = "Failed to send. Please try again.";
+        }
+    });
     </script>
 
     <!-- Add Firebase SDKs before your closing </body> tag -->
