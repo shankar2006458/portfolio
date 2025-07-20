@@ -62,6 +62,21 @@
                 transform: translateY(0); 
             }
         }
+
+            @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease forwards;
+    }
         
         .hover-scale {
             transition: transform 0.3s ease;
@@ -418,7 +433,7 @@
                     </div>
 
                     <!-- Project 7: Number Converter -->
-                    <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden card-hover">
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden card-hover hidden more-project">
                         <div class="relative aspect-video overflow-hidden">
                             <img src="https://i.ibb.co/NbQsD9N/Screenshot-2025-07-08-205852.png" alt="Number Converter" class="w-full h-full object-cover hover-scale">
                         </div>
@@ -444,7 +459,7 @@
                     </div>
                     
                     <!-- Project 8: Alarm Clock -->
-                    <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden card-hover">
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden card-hover hidden more-project">
                         <div class="relative aspect-video overflow-hidden">
                         <img src="https://cdn.dribbble.com/userupload/42362108/file/original-bd9f9f283f128bc787286497679bcba7.png" alt="Alarm Clock" class="w-full h-full object-cover hover-scale">
                         </div>
@@ -471,7 +486,7 @@
                     </div>
 
                     <!-- Project 9: Age Calculator -->
-                    <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden card-hover">
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden card-hover hidden more-project">
                         <div class="relative aspect-video overflow-hidden">
                             <img src="https://mma.prnewswire.com/media/2304665/Age_Calculator.jpg?p=facebook" alt="Age Calculator" class="w-full h-full object-cover hover-scale">
                         </div>
@@ -498,7 +513,7 @@
                     </div>
                     
                     <!-- Project 10: Project Showcase -->
-                    <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden card-hover flex flex-col h-full">
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden card-hover flex flex-col h-full hidden more-project">
                         <div class="relative aspect-video overflow-hidden">
                             <img src="https://cdn.dribbble.com/userupload/43330865/file/original-f88e03dddfa4a682a95ccca17085f045.png?resize=1504x1533&vertical=center" alt="Photo Gallery Website" class="w-full h-full object-cover hover-scale">
                         </div>
@@ -519,8 +534,13 @@
                                     View Project
                                 </a>
                             </div>
-                        </div>
+                        </div> 
                     </div>
+                </div>
+                <div class="text-center mt-8 animate-slide-up">
+                    <button id="showToggleBtn" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-md transition-all duration-300 hover:scale-105">
+                        Show More
+                    </button>
                 </div>
             </div>
         </section>
@@ -663,6 +683,38 @@
             status.textContent = "Failed to send. Please try again.";
         }
     });
+    
+        const toggleBtn = document.getElementById('showToggleBtn');
+        const hiddenProjects = document.querySelectorAll('.more-project');
+        let isExpanded = false;
+
+        toggleBtn.addEventListener('click', function() {
+            if (!isExpanded) {
+                hiddenProjects.forEach((el, index) => {
+                    el.classList.remove('hidden');
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(50px)';
+                    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    
+                    // Delay appearance staggered
+                    setTimeout(() => {
+                        el.style.opacity = '1';
+                        el.style.transform = 'translateY(0)';
+                    }, index * 100); // 100ms stagger per card
+                });
+                this.textContent = 'Show Less';
+                isExpanded = true;
+            } else {
+                hiddenProjects.forEach((el) => {
+                    el.classList.add('hidden');
+                    el.style.opacity = '';
+                    el.style.transform = '';
+                    el.style.transition = '';
+                });
+                this.textContent = 'Show More';
+                isExpanded = false;
+            }
+        });
     </script>
 
     <!-- Add Firebase SDKs before your closing </body> tag -->
