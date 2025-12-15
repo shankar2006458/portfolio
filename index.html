@@ -102,6 +102,161 @@
         .timeline-line {
             background: linear-gradient(90deg, transparent 0%, #e5e7eb 20%, #e5e7eb 80%, transparent 100%);
         }
+
+            /* Chat bubbles */
+            .chat-bubble {
+            padding: 8px 12px;
+            max-width: 85%;
+            animation: pop 0.25s ease;
+            word-wrap: break-word;
+            }
+
+            .user-msg {
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            align-self: flex-end;
+            border-radius: 14px 14px 4px 14px;
+            }
+
+            .ai-msg {
+            background: #1f2937;
+            align-self: flex-start;
+            border-radius: 14px 14px 14px 4px;
+            }
+
+            @keyframes pop {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+            }
+
+            /* Typing dots */
+            .dots::after {
+            content: "";
+            animation: dots 1.4s infinite;
+            }
+
+            @keyframes dots {
+            0% { content: ""; }
+            33% { content: "."; }
+            66% { content: ".."; }
+            100% { content: "..."; }
+            }
+
+            #ai-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 340px;
+            max-height: 520px;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 9999;
+            box-shadow: 0 20px 40px rgba(0,0,0,.4);
+            font-family: Inter, sans-serif;
+            }
+
+            #ai-header {
+            padding: 12px 14px;
+            background: linear-gradient(135deg,#3b82f6,#6366f1);
+            color: #fff;
+            font-weight: 600;
+            font-size: 14px;
+            }
+
+            #ai-messages {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            }
+
+            .chat {
+            max-width: 85%;
+            padding: 8px 12px;
+            font-size: 13px;
+            line-height: 1.4;
+            border-radius: 14px;
+            }
+
+            .user {
+            align-self: flex-end;
+            background: #3b82f6;
+            color: #fff;
+            border-radius: 14px 14px 4px 14px;
+            }
+
+            .ai {
+            align-self: flex-start;
+            background: #1f2937;
+            color: #e5e7eb;
+            border-radius: 14px 14px 14px 4px;
+            }
+
+            #suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 8px;
+            border-top: 1px solid #1e293b;
+            }
+
+            .suggestion {
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: #1f2937;
+            color: #e5e7eb;
+            cursor: pointer;
+            }
+            .suggestion:hover { background: #374151; }
+
+            #ai-input {
+            display: flex;
+            border-top: 1px solid #1e293b;
+            }
+
+            #ai-input input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 10px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            }
+
+            #ai-input button {
+            padding: 0 14px;
+            background: #3b82f6;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            }
+
+            #ai-chat {
+            overscroll-behavior: contain;
+            }
+
+            /* Prevent scroll chaining */
+            #chatBody {
+            overscroll-behavior: contain;
+            }
+
+            /* Lock background scroll when chat is open */
+            body.chat-open {
+            overflow: hidden;
+            }
     </style>
 </head>
 <body class="bg-slate-900 text-white" id="main-body">
@@ -133,7 +288,7 @@
                         <p class="text-sm md:text-base text-gray-300 max-w-xl">
                             I'm a Web Developer passionate about crafting user-centered digital experiences. I combine design thinking with technical skills to create intuitive, accessible, and visually appealing interfaces that solve real problems and delight users.
                         </p>
-                        <a href="https://shankar2006458.github.io/portfolio/My CV_Resume.pdf" download
+                        <a href="https://shankar2006458.github.io/portfolio/Shankar_CV.pdf" download
                         class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-4 rounded-full transition-all duration-300 inline-flex items-center gap-1 w-fit">
                             Download CV
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -897,8 +1052,274 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
     </script>
+
+        <!-- Floating AI Button -->
+        <button
+        id="aiToggle"
+        class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-blue-600 shadow-lg flex items-center justify-center text-xl hover:scale-110 transition z-50">
+        🤖
+        </button>
+
+        <!-- AI Chat Box -->
+        <div id="ai-chat"
+        class="fixed bottom-24 right-6 w-80 max-w-[90vw] w-80 max-h-[70vh] bg-slate-900 border border-slate-700 rounded-xl shadow-xl z-50
+                opacity-0 translate-y-4 pointer-events-none transition-all duration-300 flex flex-col">
+
+        <!-- Header -->
+        <div class="bg-blue-600 px-4 py-3 font-semibold rounded-t-xl">
+            Ask my portfolio
+        </div>
+
+        <!-- Suggested Questions -->
+        <div id="suggestions" class="flex flex-wrap gap-2 p-3 border-b border-slate-700">
+            <button class="suggestion">What projects has he built?</button>
+            <button class="suggestion">What tech stack does he use?</button>
+            <button class="suggestion">Which project is his best?</button>
+            <button class="suggestion">Is he open to internships?</button>
+        </div>
+
+        <!-- Chat Body -->
+        <div id="chatBody" class="flex-1 p-4 overflow-y-auto space-y-3 text-sm flex flex-col">
+            <div id="typing" class="text-xs text-gray-400 hidden">
+            AI is typing<span class="dots"></span>
+            </div>
+        </div>
+
+        <!-- Input -->
+        <div class="flex border-t border-slate-700">
+            <input
+            id="chatInput"
+            type="text"
+            placeholder="Ask about skills, projects..."
+            class="flex-1 px-3 py-2 bg-slate-800 focus:outline-none text-sm rounded-bl-xl"
+            />
+            <button
+            id="sendBtn"
+            class="px-4 bg-blue-600 hover:bg-blue-700 transition">
+            Send
+            </button>
+        </div>
+        </div>
+
+        <script>
+        /* ================= ELEMENTS ================= */
+        const aiToggle = document.getElementById("aiToggle");
+        const aiChat = document.getElementById("ai-chat");
+        const chatBody = document.getElementById("chatBody");
+        const chatInput = document.getElementById("chatInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const typing = document.getElementById("typing");
+
+        /* ================= STATE ================= */
+        let hasWelcomed = false;
+        let lastTopic = null; // 🔥 context memory
+
+        /* ================= SCROLL HELPERS ================= */
+        function lockScroll() {
+        document.body.classList.add("chat-open");
+        }
+        function unlockScroll() {
+        document.body.classList.remove("chat-open");
+        }
+        function closeChat() {
+        if (!aiChat.classList.contains("opacity-0")) {
+            aiChat.classList.add("opacity-0", "translate-y-4", "pointer-events-none");
+            unlockScroll();
+        }
+        }
+
+        /* ================= TOGGLE CHAT ================= */
+        aiToggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+
+        const isHidden = aiChat.classList.contains("opacity-0");
+
+        aiChat.classList.toggle("opacity-0");
+        aiChat.classList.toggle("translate-y-4");
+        aiChat.classList.toggle("pointer-events-none");
+
+        if (isHidden) {
+            lockScroll();
+            if (!hasWelcomed) {
+            hasWelcomed = true;
+            setTimeout(() => {
+                addMessage("Hi 👋 Ask me anything about his projects, skills, or experience.");
+                chatInput.focus();
+            }, 300);
+            }
+        } else {
+            unlockScroll();
+        }
+        });
+
+        /* ================= CLOSE ON OUTSIDE CLICK ================= */
+        document.addEventListener("click", (e) => {
+        if (!aiChat.contains(e.target) && !aiToggle.contains(e.target)) {
+            closeChat();
+        }
+        });
+        aiChat.addEventListener("click", e => e.stopPropagation());
+        aiToggle.addEventListener("click", e => e.stopPropagation());
+
+        /* ================= PORTFOLIO DATA ================= */
+        const PORTFOLIO_DATA = {
+        overview:
+            "Shankar Prasad Pyke is a frontend-focused web developer who builds clean, responsive, and user-friendly web experiences.",
+
+        skills:
+            "He works with HTML, CSS, JavaScript, Tailwind CSS, Firebase, and focuses strongly on UI animations and frontend development.",
+
+        projects:
+            "He has built 15+ frontend projects including SpeedTyper, QuickDay, Math Blaster, Attendance WebApp, Weather App, Currency Converter, and other interactive web tools.",
+
+        best:
+            "SpeedTyper and QuickDay stand out for clean UI, smooth animations, real-world usability, and polished frontend logic.",
+
+        availability:
+            "He is open to internships, freelance work, and learning opportunities as a frontend developer.",
+
+        education:
+            "He is currently pursuing a Bachelor of Computer Applications (BCA) from Asansol Engineering College.",
+
+        strengths:
+            "His strengths include attention to UI details, smooth animations, clean code structure, and strong frontend problem-solving.",
+
+        tools:
+            "He regularly uses VS Code, GitHub, browser DevTools, and Tailwind CSS for efficient frontend development."
+        };
+
+        /* ================= MESSAGE HANDLING ================= */
+        function addMessage(text, type = "ai") {
+        if (
+            text.startsWith("Hi 👋") &&
+            [...chatBody.children].some(el => el.textContent === text)
+        ) return;
+
+        const msg = document.createElement("div");
+        msg.className = `chat-bubble ${type === "user" ? "user-msg ml-auto" : "ai-msg"}`;
+        msg.textContent = text;
+
+        chatBody.insertBefore(msg, typing);
+        chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function showTyping(show) {
+        typing.classList.toggle("hidden", !show);
+        }
+
+        /* ================= FILTER ================= */
+        function isPortfolioRelated(text) {
+        return /(project|skill|skil|educat|college|study|tool|strength|intern|hire|about|who|work|best)/i.test(text);
+        }
+
+        /* ================= AI LOGIC (3 FEATURES IMPLEMENTED) ================= */
+        function getAIResponse(text) {
+        // 🔹 normalize input (typo tolerance)
+        const q = text
+            .toLowerCase()
+            .replace(/[^a-z\s]/g, "")
+            .trim();
+
+        if (!isPortfolioRelated(q)) {
+            return "This assistant answers questions about Shankar’s work, skills, and projects.";
+        }
+
+        let responses = [];
+
+        // 🔹 EDUCATION
+        if (q.includes("educat") || q.includes("college") || q.includes("study") || q.includes("degree")) {
+            responses.push(PORTFOLIO_DATA.education);
+            lastTopic = "education";
+        }
+
+        // 🔹 SKILLS
+        if (q.includes("skill") || q.includes("skil") || q.includes("stack") || q.includes("tech")) {
+            responses.push(PORTFOLIO_DATA.skills + "\n\nYou can download the CV from the top section.");
+            lastTopic = "skills";
+        }
+
+        // 🔹 PROJECTS
+        if (q.includes("project") || q.includes("work")) {
+            responses.push(PORTFOLIO_DATA.projects + "\n\nYou can scroll to the Projects section to see live demos.");
+            lastTopic = "projects";
+        }
+
+        // 🔹 BEST (context-aware)
+        if (q.includes("best")) {
+            if (lastTopic === "projects") {
+            responses.push(PORTFOLIO_DATA.best);
+            } else {
+            responses.push(PORTFOLIO_DATA.best);
+            }
+        }
+
+        // 🔹 ABOUT
+        if (q.includes("about") || q.includes("who") || q.includes("profile")) {
+            responses.push(PORTFOLIO_DATA.overview);
+            lastTopic = "overview";
+        }
+
+        // 🔹 TOOLS
+        if (q.includes("tool")) {
+            responses.push(PORTFOLIO_DATA.tools);
+            lastTopic = "tools";
+        }
+
+        // 🔹 STRENGTHS
+        if (q.includes("strength")) {
+            responses.push(PORTFOLIO_DATA.strengths);
+            lastTopic = "strengths";
+        }
+
+        // 🔹 AVAILABILITY
+        if (q.includes("intern") || q.includes("hire") || q.includes("job") || q.includes("available")) {
+            responses.push(PORTFOLIO_DATA.availability);
+            lastTopic = "availability";
+        }
+
+        if (responses.length) {
+            return responses.join("\n\n");
+        }
+
+        return "You can ask about his education, skills, projects, tools, or availability.";
+        }
+
+        /* ================= SEND MESSAGE ================= */
+        function sendMessage(textFromBtn) {
+        const text = (textFromBtn || chatInput.value).trim();
+
+        if (!text) {
+            chatInput.classList.add("ring-2", "ring-red-500");
+            setTimeout(() => {
+            chatInput.classList.remove("ring-2", "ring-red-500");
+            }, 400);
+            return;
+        }
+
+        addMessage(text, "user");
+        chatInput.value = "";
+
+        showTyping(true);
+
+        setTimeout(() => {
+            showTyping(false);
+            addMessage(getAIResponse(text), "ai");
+        }, 700);
+        }
+
+        /* ================= EVENTS ================= */
+        sendBtn.addEventListener("click", () => sendMessage());
+        chatInput.addEventListener("keydown", e => {
+        if (e.key === "Enter") sendMessage();
+        });
+
+        document.querySelectorAll(".suggestion").forEach(btn => {
+        btn.addEventListener("click", () => sendMessage(btn.innerText));
+        });
+
+        /* ================= SCROLL SAFETY ================= */
+        chatBody.addEventListener("wheel", e => e.stopPropagation());
+    </script>
+
 </body>
 </html>
-
-
-
