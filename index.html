@@ -1209,7 +1209,7 @@
 
         /* ================= FILTER ================= */
         function isPortfolioRelated(text) {
-        return /(project|skill|skil|educat|college|study|tool|strength|intern|hire|about|who|work|best)/i.test(text);
+        return /(project|skill|skil|stack|tech|technology|tool|educat|college|study|intern|hire|about|who|work|best)/i.test(text);
         }
 
         /* ================= AI LOGIC (3 FEATURES IMPLEMENTED) ================= */
@@ -1232,10 +1232,21 @@
             lastTopic = "education";
         }
 
-        // 🔹 SKILLS
-        if (q.includes("skill") || q.includes("skil") || q.includes("stack") || q.includes("tech")) {
-            responses.push(PORTFOLIO_DATA.skills + "\n\nYou can download the CV from the top section.");
-            lastTopic = "skills";
+        // 🔹 SKILLS / TECH STACK (FIXED)
+        if (
+        q.includes("skill") ||
+        q.includes("skil") ||
+        q.includes("tech stack") ||
+        q.includes("stack") ||
+        q.includes("technologies") ||
+        q.includes("tools he use") ||
+        q.includes("uses")
+        ) {
+        responses.push(
+            PORTFOLIO_DATA.skills +
+            "\n\nYou can download the CV from the top section."
+        );
+        lastTopic = "skills";
         }
 
         // 🔹 PROJECTS
